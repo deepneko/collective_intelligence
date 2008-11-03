@@ -112,6 +112,7 @@ class Clusters
     lastmatches = []
     for n in 0...num
       p "Iteration:" + n.to_s
+      #p clusters
 
       bestmatches = []
       for i in 0...k
@@ -122,7 +123,7 @@ class Clusters
         row = @data[j]
         bestmatch = 0
         for i in 0...clusters.size
-#          p j.to_s + ":" + i.to_s
+          #p j.to_s + ":" + i.to_s
           d = block.call(clusters[i], row)
           if d < block.call(clusters[bestmatch], row)
             bestmatch = i
@@ -130,6 +131,9 @@ class Clusters
         end
         bestmatches[bestmatch] << j
       end
+
+      #p lastmatches
+      #p bestmatches
 
       if bestmatches == lastmatches
         break
@@ -153,7 +157,6 @@ class Clusters
             avgs[j] /= bestmatches[i].size
           end
 
-          p avgs
           clusters[i] = avgs
         end
       end
@@ -229,5 +232,3 @@ end
 #clusters.printclust(clust)
 
 kclust = clusters.kcluster(&distance)
-p kclust
-
