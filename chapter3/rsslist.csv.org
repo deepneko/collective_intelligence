@@ -1,0 +1,7 @@
+ryo_katsuma,http://blog.katsuma.tv/index.xml
+kawataso,http://d.kawataso.net/rss.xml
+deepneko,http://deepneko.dyndns.org/rss
+dankogai,http://blog.livedoor.jp/dankogai/index.rdf
+authornari,http://d.hatena.ne.jp/authorNari/rss2
+slashdot,http://slashdot.jp/slashdotjp.rss
+higepon,http://d.hatena.ne.jp/higepon/rss
