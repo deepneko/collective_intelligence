@@ -167,7 +167,7 @@ class Clusters
     return bestmatches
   end
 
-  def printclust(clust, labels=@rownames, n=0)
+  def print_hclust(clust, labels=@rownames, n=0)
     for i in 0...n
       print "  "
     end
@@ -187,23 +187,13 @@ class Clusters
     end
   end
 
-  def fprintf_hclust(clust, file)
-
-  end
-
-  def fprintf_kclust(clust, file)
-    f = open(file, "w");
-
-    begin
-      clust.each{|c|
-        c.each{|x|
-          f.write(@rownames[x] + "\t")
-        }
-        f.write("\n")
+  def print_kclust(clust)
+    clust.each{|c|
+      c.each{|x|
+        print "  " + @rownames[x] + "\n"
       }
-    ensure
-      f.close
-    end
+      print "\n"
+    }
   end
 end
 
@@ -254,4 +244,4 @@ end
 #clusters.printclust(clust)
 
 kclust = clusters.kcluster(&distance)
-clusters.fprintf_kclust(kclust, const.kclustdata)
+clusters.print_kclust(kclust)
