@@ -33,6 +33,7 @@ class Clusters
     #p @data
   end
 
+  # hierarchical clustering
   def hcluster(&block)
     distances = Hash.new
     distancepair = []
@@ -88,6 +89,7 @@ class Clusters
     return clust[0]
   end
 
+  # k-means
   def kcluster(k=4, num=100, &block)
     ranges = []
 
@@ -184,6 +186,25 @@ class Clusters
       printclust(clust.right, labels, n=n+1)
     end
   end
+
+  def fprintf_hclust(clust, file)
+
+  end
+
+  def fprintf_kclust(clust, file)
+    f = open(file, "w");
+
+    begin
+      clust.each{|c|
+        c.each{|x|
+          f.write(@rownames[x] + "\t")
+        }
+        f.write("\n")
+      }
+    ensure
+      f.close
+    end
+  end
 end
 
 class BiCluster
@@ -218,6 +239,7 @@ class BiCluster
 end
 
 require "const.rb"
+
 const = Const.new
 distance = const.pearson
 
@@ -232,3 +254,4 @@ end
 #clusters.printclust(clust)
 
 kclust = clusters.kcluster(&distance)
+clusters.fprintf_kclust(kclust, const.kclustdata)

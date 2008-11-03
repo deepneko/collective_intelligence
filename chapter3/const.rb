@@ -2,10 +2,14 @@ class Const
   attr_accessor :rsslist
   attr_accessor :matrixdata
   attr_accessor :distance
+  attr_accessor :kclustdata
+  attr_accessor :hclustdata
 
   def initialize
     @rsslist = "rsslist.csv"
     @matrixdata = "blogdata.txt"
+    @kclustdata = "kclust.txt"
+    @hclustdata = "hclust.txt"
   end
 
   def pearson
