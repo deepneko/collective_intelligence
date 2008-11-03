@@ -1,4 +1,38 @@
-dankogai	ABA	yossy	ryo_katsuma	michiyasu_wada	kuwata_chikara	isuka	flashrod	sato-shi	kawataso	kenny	miscellaneous	Unknown_Quality	o_mega	hogelog	moni	tarotaro	
-+stream	authornari	kzk_mover	nitoyon	
-Klab	TechTalk.jp	DK_alpha	FURUHASHI_Sadayuki	
-gihyo.jp	deepneko	note.x	nyaxt	MORITA_Hajime	tueda_wolf	zeropointnine	zupko.info	isocchi	higepon	slashdot	
+  authornari
+  tueda_wolf
+  zeropointnine
+  zupko.info
+  DK_alpha
+  hogelog
+  nitoyon
+
+  dankogai
+  isuka
+  flashrod
+  sato-shi
+  kenny
+  miscellaneous
+  TechTalk.jp
+  o_mega
+  moni
+  tarotaro
+  FURUHASHI_Sadayuki
+
+  ABA
+  michiyasu_wada
+  kawataso
+  deepneko
+  note.x
+  MORITA_Hajime
+  isocchi
+
+  +stream
+  yossy
+  ryo_katsuma
+  Klab
+  gihyo.jp
+  kzk_mover
+  nyaxt
+  higepon
+  slashdot
+

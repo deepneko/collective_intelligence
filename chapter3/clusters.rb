@@ -54,7 +54,7 @@ class Clusters
           distancepair = []
           distancepair << clust[i].id << clust[j].id
 
-          if !distances.key? (distancepair)
+          if !distances.key?(distancepair)
             distances[distancepair] = block.call(clust[i].vec, clust[j].vec)
           end
 
@@ -253,11 +253,11 @@ else
   clusters.readfile(const.matrixdata)
 end
 
-hclust = clusters.hcluster(&distance)
-clusters.print_hclust(hclust)
+#hclust = clusters.hcluster(&distance)
+#clusters.print_hclust(hclust)
 
-visualizer = Visualizer.new
-visualizer.drawdendrogram(hclust, clusters.rownames, const.dendrogram)
+#visualizer = Visualizer.new
+#visualizer.drawdendrogram(hclust, clusters.rownames, const.dendrogram)
 
-#kclust = clusters.kcluster(&distance)
-#clusters.print_kclust(kclust)
+kclust = clusters.kcluster(&distance)
+clusters.print_kclust(kclust)
