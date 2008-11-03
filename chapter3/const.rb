@@ -4,12 +4,14 @@ class Const
   attr_accessor :distance
   attr_accessor :kclustdata
   attr_accessor :hclustdata
+  attr_accessor :dendrogram
 
   def initialize
     @rsslist = "rsslist.csv"
     @matrixdata = "blogdata.txt"
     @kclustdata = "kclust.txt"
     @hclustdata = "hclust.txt"
+    @dendrogram = "dendrogram.png"
   end
 
   def pearson

@@ -22,8 +22,7 @@ class GenerateFeedVector
 
         array = line.split(",")
         blog = Blog.new(array[0], array[1])
-        @bloglist << blog
-        
+
         open(array[1]){|f|
           content = f.read
         }
@@ -35,6 +34,8 @@ class GenerateFeedVector
           puts "#warning:" + blog.blogger + "'s rss is invalid"
           next
         end
+
+        @bloglist << blog
 
         # parse rss description for each blog
         begin
@@ -150,5 +151,12 @@ class Blog
   end
 end
 
+require 'const.rb'
+const = Const.new
+
 gfv = GenerateFeedVector.new
-gfv.init(ARGV[0])
+if ARGV[0]
+  gfv.init(ARGV[0])
+else
+  gfv.init(const.rsslist)
+end

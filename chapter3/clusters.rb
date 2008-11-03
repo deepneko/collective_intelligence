@@ -27,10 +27,6 @@ class Clusters
     ensure
       f.close
     end
-
-    #p @colnames
-    #p @rownames
-    #p @data
   end
 
   # hierarchical clustering
@@ -46,20 +42,28 @@ class Clusters
     end
 
     while clust.size > 1
+      p "cluster size:" + clust.size.to_s
+      p "current cluster id:" + currentclustid.to_s
+
       lowestpair = [0, 1]
       closest = block.call(clust[0].vec, clust[1].vec)
 
       # find nearest cluster
       for i in 0...clust.size 
         for j in i+1...clust.size
-          distancepair.clear
+          distancepair = []
           distancepair << clust[i].id << clust[j].id
 
-          if !distances.index(distancepair)
+          if !distances.key? (distancepair)
             distances[distancepair] = block.call(clust[i].vec, clust[j].vec)
           end
 
           d = distances[distancepair]
+#          if d == 0 && clust[i].id >= 0 && clust[j].id >= 0
+#            p @rownames[clust[i].id]
+#            p @rownames[clust[j].id]
+#            p "   "
+#          end
           if d < closest
             closest = d
             lowestpair.clear
@@ -102,6 +106,7 @@ class Clusters
       ranges << (minmax << range.min << range.max)
     end
 
+    # set random clusters * k
     clusters = []
     for i in 0...k
       cluster = []
@@ -111,21 +116,21 @@ class Clusters
       clusters << cluster
     end
 
+    # main loop * num iterations
     lastmatches = []
     for n in 0...num
       p "Iteration:" + n.to_s
-      #p clusters
 
       bestmatches = []
       for i in 0...k
         bestmatches << []
       end
 
+      # add each data to nearest cluster
       for j in 0...@data.size
         row = @data[j]
         bestmatch = 0
         for i in 0...clusters.size
-          #p j.to_s + ":" + i.to_s
           d = block.call(clusters[i], row)
           if d < block.call(clusters[bestmatch], row)
             bestmatch = i
@@ -134,14 +139,13 @@ class Clusters
         bestmatches[bestmatch] << j
       end
 
-      #p lastmatches
-      #p bestmatches
-
+      # if bestmatches didn't change, then break
       if bestmatches == lastmatches
         break
       end
       lastmatches = bestmatches
 
+      # calculate center of current clusters
       for i in 0...k
         avgs = []
         for j in 0...@data[0].size
@@ -179,11 +183,11 @@ class Clusters
     end
 
     if clust.left
-      printclust(clust.left, labels, n=n+1)
+      print_hclust(clust.left, labels, n=n+1)
     end
 
     if clust.right
-      printclust(clust.right, labels, n=n+1)
+      print_hclust(clust.right, labels, n=n+1)
     end
   end
 
@@ -194,6 +198,14 @@ class Clusters
       }
       print "\n"
     }
+  end
+
+  def rownames
+    @rownames
+  end
+
+  def colnames
+    @colnames
   end
 end
 
@@ -229,6 +241,7 @@ class BiCluster
 end
 
 require "const.rb"
+require "visualizer.rb"
 
 const = Const.new
 distance = const.pearson
@@ -240,8 +253,11 @@ else
   clusters.readfile(const.matrixdata)
 end
 
-#hclust = clusters.hcluster(&distance)
-#clusters.printclust(clust)
+hclust = clusters.hcluster(&distance)
+clusters.print_hclust(hclust)
 
-kclust = clusters.kcluster(&distance)
-clusters.print_kclust(kclust)
+visualizer = Visualizer.new
+visualizer.drawdendrogram(hclust, clusters.rownames, const.dendrogram)
+
+#kclust = clusters.kcluster(&distance)
+#clusters.print_kclust(kclust)
