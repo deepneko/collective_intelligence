@@ -8,12 +8,11 @@ require 'uri'
 # generate word list and blog list
 class GenerateFeedVector
   def initialize
-    @out = "blogdata.txt"
     @bloglist = []
     @wordcounts = Hash.new
   end
 
-  def init(file)
+  def init(file, out)
     f = open(file, "r")
     begin
       f.each_line do |line|
@@ -34,8 +33,6 @@ class GenerateFeedVector
           puts "#warning:" + blog.blogger + "'s rss is invalid"
           next
         end
-
-        @bloglist << blog
 
         # parse rss description for each blog
         begin
@@ -59,14 +56,15 @@ class GenerateFeedVector
               end
             end
           end
-
-          # debug
-          p blog.blogger
-
         rescue
           puts "#warning:" + blog.blogger + "'s rss is invalid"
           next
         end
+
+        # debug
+        p blog.blogger
+
+        @bloglist << blog
       end
     ensure
       f.close
@@ -87,7 +85,7 @@ class GenerateFeedVector
     # create blog - word matrix
     # row blog
     # col word
-    f = open(@out, "w");
+    f = open(out, "w");
     begin
       @wordcounts.each_key{|w|
         f.write("\t" + w)
@@ -155,8 +153,8 @@ require 'const.rb'
 const = Const.new
 
 gfv = GenerateFeedVector.new
-if ARGV[0]
-  gfv.init(ARGV[0])
+if ARGV[0] && ARGV[1]
+  gfv.init(ARGV[0], ARGV[1])
 else
-  gfv.init(const.rsslist)
+  gfv.init(const.rsslist, const.matrixdata)
 end
