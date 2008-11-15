@@ -48,12 +48,11 @@ class Crawler
 
   def getentryid(table, field, value, createnew=true)
     cur = @con.execute("select rowid from #{table} where #{field}='#{value}'")
-    if cur
+    if cur.size != 0
       return cur[0]
     else
-      cur = @con.execute("insert into #{table}(#{field}) valueds('#{value}')")
-      #TODO
-      return cur
+      cur = @con.execute("insert into #{table}(#{field}) values('#{value}')")
+      return cur[cur.size-1]
     end
   end
 
@@ -68,19 +67,19 @@ class Crawler
     words = separatewords(text)
 
     #get url id
-
     urlid = getentryid('urllist', 'url', url)
 
     #each word link this url or not
-    words.each { |word|
+    for i in 0...words.size
+      word = words[i]
       if @ignorewords.index(word)
         next
       end
 
       wordid = getentryid('wordlist', 'word', word)
       @con.execute("insert into wordlocation(urlid, wordid, location) \
-                   values (#{urlid}, #{wordid}, #{location})")
-    }
+                   values ('#{urlid}', '#{wordid}', '#{i}')")
+    end
   end
 
   #TODO delete tag for each_child element?
@@ -103,9 +102,9 @@ class Crawler
 
   def isindexed(url)
     u = @con.execute("select rowid from urllist where url='#{url}'")
-    if u
+    if u.size != 0
       v = @con.execute("select * from wordlocation where urlid='#{u[0]}'")
-      if v
+      if v.size != 0
         return true
       end
     end
@@ -119,15 +118,15 @@ class Crawler
     if fromid == toid
       return
     end
-    cur = @con.execute("insert into link(fromid, toid) values(#{fromid}, #{toid}")
-    linkid = cur.lastrowid
+    cur = @con.execute("insert into link(fromid, toid) values('#{fromid}', '#{toid}')")
+    linkid = cur[cur.size-1]
     words.each { |word|
-      if ignorewords.index(word)
+      if @ignorewords.index(word)
         next
       end
 
       wordid = getentryid('wordlist', 'word', word)
-      @con.execute("insert into linkwords(linkid, wordid) values(#{linkid}, #{wordid})")
+      @con.execute("insert into linkwords(linkid, wordid) values('#{linkid}', '#{wordid}')")
     }
   end
 
@@ -163,10 +162,11 @@ class Crawler
             end
 
             url = urljoin(page, url)
-            p "info:" + url
+            #p "info:" + url
 
             url = url.split(/\s*\#\s*/)[0]
-            if isindexed(url) == nil
+            if !isindexed(url)
+              p "not indexed:" + url
               newpages << url
             end
 
@@ -177,7 +177,7 @@ class Crawler
         begin
           dbcommit
         rescue
-          p "debug:" + page
+          p "rescue:" + page
           next
         end
       }
@@ -186,7 +186,7 @@ class Crawler
   end
 
   def test
-    @con.execute("select rowid from wordlocation where wordid='1'")
+    p @con.execute("select rowid from wordlocation where wordid='1'")
   end
 end
 
@@ -205,7 +205,7 @@ crawler = Crawler.new(const.dbname)
 #words = crawler.separatewords(text)
 
 pages = ['http://kiwitobes.com/wiki/Perl.html']
-crawler.crawl(pages)
+#crawler.crawl(pages)
 
 crawler.test
 
