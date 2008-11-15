@@ -29,7 +29,6 @@ class Crawler
     @con.execute('drop table wordlocation')
     @con.execute('drop table link')
     @con.execute('drop table linkwords')
-    @con.commit
   end
 
   def createindextables
@@ -43,16 +42,15 @@ class Crawler
     @con.execute('create index wordurlidx on wordlocation(wordid)')
     @con.execute('create index urltoidx on link(toid)')
     @con.execute('create index urlfromidx on link(fromid)')
-    @con.commit
   end
 
   def getentryid(table, field, value, createnew=true)
     cur = @con.execute("select rowid from #{table} where #{field}='#{value}'")
-    if cur.size != 0
-      return cur[0]
-    else
+    if cur.size == 0
       cur = @con.execute("insert into #{table}(#{field}) values('#{value}')")
       return cur[cur.size-1]
+    else
+      return cur[0]
     end
   end
 
@@ -156,17 +154,14 @@ class Crawler
 
         (doc/:a).each { |link|
           if link[:href]
-            url = link[:href]
+            url = urljoin(page, link[:href])
             if url.index("'")
               next
             end
 
-            url = urljoin(page, url)
-            #p "info:" + url
-
             url = url.split(/\s*\#\s*/)[0]
             if !isindexed(url)
-              p "not indexed:" + url
+              p "add indexed:" + url
               newpages << url
             end
 
@@ -174,27 +169,28 @@ class Crawler
             addlinkref(page, url, linkText)
           end
         }
-        begin
-          dbcommit
-        rescue
-          p "rescue:" + page
-          next
-        end
       }
       pages = newpages
     end
   end
 
   def test
-    p @con.execute("select rowid from wordlocation where wordid='1'")
+    #urllist = @con.execute("select url from urllist order by url")
+    #urllist.each{|c| p c}
+
+    #wordlist = @con.execute("select word from wordlist order by word")
+    #wordlist.each{|w| p w}
+    #p wordlist.size
+
+    wordlocation = @con.execute("select wordid,location from wordlocation")
+    p wordlocation
+    p wordlocation.size
   end
 end
 
 const = Const.new
 
 crawler = Crawler.new(const.dbname)
-#pagelist = ['http://kiwitobes.com/wiki/Perl.html']
-#crawler.crawl(pagelist)
 
 #crawler.droptables
 #crawler.createindextables
@@ -204,7 +200,7 @@ crawler = Crawler.new(const.dbname)
 #text = crawler.gettextonly(doc)
 #words = crawler.separatewords(text)
 
-pages = ['http://kiwitobes.com/wiki/Perl.html']
+#pages = ['http://kiwitobes.com/wiki/Categorical_list_of_programming_languages.html']
 #crawler.crawl(pages)
 
 crawler.test
