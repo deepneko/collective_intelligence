@@ -34,7 +34,7 @@ class Crawler
   def createindextables
     @con.execute('create table urllist(url)')
     @con.execute('create table wordlist(word)')
-    @con.execute('create table wordlocation(urlid text, wordid, location)')
+    @con.execute('create table wordlocation(urlid, wordid, location)')
     @con.execute('create table link(fromid integer, toid integer)')
     @con.execute('create table linkwords(wordid, linkid)')
     @con.execute('create index wordidx on wordlist(word)')
@@ -185,12 +185,12 @@ const = Const.new
 crawler = Crawler.new(const.dbname)
 
 #crawler.droptables
-#crawler.createindextables
+crawler.createindextables
 
 #c = open('Perl.html')
 #doc = Hpricot(c.read)
 #text = crawler.gettextonly(doc)
 #words = crawler.separatewords(text)
 
-#pages = ['http://kiwitobes.com/wiki/Categorical_list_of_programming_languages.html']
-#crawler.crawl(pages)
+pages = ['http://kiwitobes.com/wiki/Categorical_list_of_programming_languages.html']
+crawler.crawl(pages)
