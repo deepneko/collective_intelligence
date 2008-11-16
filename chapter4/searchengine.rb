@@ -47,10 +47,10 @@ class Crawler
   def getentryid(table, field, value, createnew=true)
     cur = @con.execute("select rowid from #{table} where #{field}='#{value}'")
     if cur.size == 0
-      cur = @con.execute("insert into #{table}(#{field}) values('#{value}')")
-      return cur[cur.size-1]
+      @con.execute("insert into #{table}(#{field}) values('#{value}')")
+      return getlastrowid(table)
     else
-      return cur[0]
+      return cur[0][0]
     end
   end
 
@@ -109,6 +109,11 @@ class Crawler
     return false
   end
 
+  def getlastrowid(table)
+    cur = @con.execute("select rowid from #{table} order by rowid desc limit 1")
+    return cur[0][0]
+  end
+
   def addlinkref(urlFrom, urlTo, linkText)
     words = separatewords(linkText)
     fromid = getentryid('urllist', 'url', urlFrom)
@@ -116,8 +121,8 @@ class Crawler
     if fromid == toid
       return
     end
-    cur = @con.execute("insert into link(fromid, toid) values('#{fromid}', '#{toid}')")
-    linkid = cur[cur.size-1]
+    @con.execute("insert into link(fromid, toid) values('#{fromid}', '#{toid}')")
+    linkid = getlastrowid("link")
     words.each { |word|
       if @ignorewords.index(word)
         next
@@ -173,19 +178,6 @@ class Crawler
       pages = newpages
     end
   end
-
-  def test
-    #urllist = @con.execute("select url from urllist order by url")
-    #urllist.each{|c| p c}
-
-    #wordlist = @con.execute("select word from wordlist order by word")
-    #wordlist.each{|w| p w}
-    #p wordlist.size
-
-    wordlocation = @con.execute("select wordid,location from wordlocation")
-    p wordlocation
-    p wordlocation.size
-  end
 end
 
 const = Const.new
@@ -202,9 +194,3 @@ crawler = Crawler.new(const.dbname)
 
 #pages = ['http://kiwitobes.com/wiki/Categorical_list_of_programming_languages.html']
 #crawler.crawl(pages)
-
-crawler.test
-
-
-
-
