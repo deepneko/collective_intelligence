@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'sqlite3'
 require 'const'
+require 'searcher.rb'
 
 class Searcher
   def initialize(dbname)
@@ -58,11 +59,17 @@ class Searcher
       totalscores[row[0]] = 0.0
     }
     
-    #TODO すべて1.0の重みづけがしてあるが・・・？
-    weights = frequencyscore(rows)
+    weights = [[1.0, frequencyscore(rows)],
+               [1.0, locationscore(rows)],
+               [1.0, pagerankscore(rows)],
+               [1.0, linktextscore(rows,wordids)]]
 
-    totalscores.each_key { |url|
-      totalscores[url] += weights[url]
+    weights.each { |pair|
+      weight = pair.shift
+      scores = pair.shift
+      totalscores.each_key { |url|
+        totalscores[url] += weight * scores[url]
+      }
     }
 
     return totalscores
@@ -76,14 +83,14 @@ class Searcher
   def query(q)
     rows = wordids = getmatchrows(q)
     scores = getscoredlist(rows, wordids)
-    scores.to_a.sort{|a, b|
+    scores_a = scores.to_a.sort{|a, b|
       (b[1] <=> a[1]) * 2 + (a[0] <=> b[0])
     }
     
-    scores.each { |s|
+    scores_a.each { |s|
       print s[1].to_s + " "
       p geturlname(s[0])
-    }
+   }
   end
 
   def normalizescores(scores, smallIsBetter=0)
@@ -117,9 +124,68 @@ class Searcher
     }
     return normalizescores(counts)
   end
+
+  def locationscore(rows)
+    locations = Hash.new
+    rows.each { |row|
+      locations[row[0]] = 1000000
+    }
+
+    rows.each { |row|
+      loc = 0
+      row.slice(1, row.size).each { |l|
+        loc += l.to_i
+      }
+      if loc < locations[row[0]]
+        locations[row[0]] = loc
+      end
+    }
+
+    return normalizescores(locations, smallIsBetter=1)
+  end
+
+  def distancescore(rows)
+    mindistance = Hash.new
+    if rows.size <= 2
+      rows.each { |row|
+        mindistance[row[0]] = 1.0
+      }
+      return mindistance
+    end
+
+    rows.each { |row|
+      mindistance[row[0]] = 1000000
+    }
+
+    rows.each { |row|
+      dist = 0.0
+      for i in 2...row.size
+        dist += (row[i].to_f - row[i-1].to_f).abs
+      end
+      if dist < mindistance[row[0]]
+        mindistance[row[0]] = dist
+      end
+    }
+    
+    return normalizescores(mindistance, smallIsBetter=1)
+  end
+
+  def pagerankscore(rows)
+    pageranks = Hash.new
+    rows.each { |row|
+      pageranks[row[0]] = @con.execute("select score from pagerank where urlid=#{row[0]}")[0][0]
+    }
+    maxrank = pageranks.values.max.to_f
+
+    normalizedscores = Hash.new
+    pageranks.each_pair { |u, l|
+      normalizedscores[u] = l.to_f / maxrank
+    }
+
+    return normalizedscores
+  end
 end
 
 const = Const.new
 searcher = Searcher.new(const.dbname)
-#p searcher.getmatchrows(ARGV[0])
 searcher.query(ARGV[0])

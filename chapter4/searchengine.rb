@@ -178,6 +178,41 @@ class Crawler
       pages = newpages
     end
   end
+
+  def inboundlinkscore(rows)
+    uniqueurls = []
+    rows.each { |row|
+      uniqueurls << row[0]
+    }
+
+    inboundcount = Hash.new
+    uniqueurls.each { |u|
+      inboundcount[u] = @con.execute("select count(*) from link where toid='#{u}")[0]
+    }
+
+    return normalizescores(inboundcount)
+  end
+
+  def calculatepagerank(iterations=20)
+    @con.execute("drop table if exists pagerank")
+    @con.execute("create table pagerank(urlid primary key, score)")
+    @con.execute("insert into pagerank select rowid, 1.0 from urllist")
+
+    for i in 0...iterations
+      print "Iteration #{i}\n"
+      rowids = @con.execute("select rowid from urllist")
+      rowids.each { |urlid|
+        pr = 0.15
+        linkers = @con.execute("select distinct fromid from link where toid='#{urlid}'").flatten
+        linkers.each { |linker|
+          linkingpr = @con.execute("select score from pagerank where urlid=#{linker}")[0][0]
+          linkingcount = @con.execute("select count(*) from link where fromid='#{linker}'")[0][0]
+          pr += 0.85 * (linkingpr.to_f / linkingcount.to_i)
+        }
+        @con.execute("update pagerank set score='#{pr}' where urlid=#{urlid}")
+      }
+    end
+  end
 end
 
 const = Const.new
@@ -185,12 +220,8 @@ const = Const.new
 crawler = Crawler.new(const.dbname)
 
 #crawler.droptables
-crawler.createindextables
+#crawler.createindextables
+#pages = ['http://kiwitobes.com/wiki/Categorical_list_of_programming_languages.html']
+#crawler.crawl(pages)
 
-#c = open('Perl.html')
-#doc = Hpricot(c.read)
-#text = crawler.gettextonly(doc)
-#words = crawler.separatewords(text)
-
-pages = ['http://kiwitobes.com/wiki/Categorical_list_of_programming_languages.html']
-crawler.crawl(pages)
+crawler.calculatepagerank
