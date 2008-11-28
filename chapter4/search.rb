@@ -1,13 +1,18 @@
 #!/usr/bin/env ruby
 require 'cgi'
-require 'Searcher'
+require 'searcher.rb'
+require 'const.rb'
+
+$const = Const.new
+$searcher = Searcher.new($const.dbname)
 
 def search(keyword)
+  $searcher.query(keyword)
 end
 
 $head = <<"HEAD"
 <html><head>
-<title>File Search</title>
+<title>Search Engine - Collective Intelligence Chapter 4</title>
 <style>
 BODY, TD, TR{font-size:12px}
 A{text-decoration:none}
@@ -19,7 +24,7 @@ HEAD
 $form = <<"FORM"
 <b>ファイルの検索</b>
 <br><br>
-<form action="./Explorer.rb" method="get">
+<form action="./search.rb" method="get">
 キーワード: <input type="text" name="keyword"><br>
     <input type="submit" value="検索">
 </form>
@@ -35,10 +40,12 @@ cgi.out(
         "charset"	=> "Shift_JIS"
         ) do
   cgi.html do
-    cgi.head{ cgi.title{'Search http://'} } +
+    cgi.head{ cgi.title{'Search Engine'} } +
       cgi.body do
       if keyword
-        search(keyword)
+        $head + $form + search(keyword)
+      else
+        $head + $form
       end
     end
   end

@@ -25,6 +25,9 @@ class Searcher
     #separate words with space
     if q
       words = q.split(/\s/)
+      if words.size == 0
+        return
+      end
     else
       return
     end
@@ -44,6 +47,8 @@ class Searcher
         tablelist += "wordlocation w#{tablenumber}"
         clauselist += "w#{tablenumber}.wordid='#{wordid}'"
         tablenumber += 1
+      else
+        return
       end
     }
 
@@ -61,8 +66,7 @@ class Searcher
     
     weights = [[1.0, frequencyscore(rows)],
                [1.0, locationscore(rows)],
-               [1.0, pagerankscore(rows)],
-               [1.0, linktextscore(rows,wordids)]]
+               [1.0, pagerankscore(rows)]]
 
     weights.each { |pair|
       weight = pair.shift
@@ -77,20 +81,26 @@ class Searcher
 
   def geturlname(id)
     cur = @con.execute("select url from urllist where rowid='#{id}'")
-    return cur[0]
+    return cur[0][0]
   end
 
   def query(q)
     rows = wordids = getmatchrows(q)
+    if !rows
+      return ""
+    end
     scores = getscoredlist(rows, wordids)
     scores_a = scores.to_a.sort{|a, b|
       (b[1] <=> a[1]) * 2 + (a[0] <=> b[0])
     }
-    
+
+    html = ""
     scores_a.each { |s|
-      print s[1].to_s + " "
-      p geturlname(s[0])
-   }
+      #print s[1].to_s + "<br>"
+      url = geturlname(s[0])
+      html += "<a href='" + url + "'>" + url + "</a><br>"
+    }
+    return html
   end
 
   def normalizescores(scores, smallIsBetter=0)
@@ -186,6 +196,6 @@ class Searcher
   end
 end
 
-const = Const.new
-searcher = Searcher.new(const.dbname)
-searcher.query(ARGV[0])
+#const = Const.new
+#searcher = Searcher.new(const.dbname)
+#searcher.query(ARGV[0])
