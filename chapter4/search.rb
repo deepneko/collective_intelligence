@@ -22,7 +22,7 @@ A{text-decoration:none}
 HEAD
 
 $form = <<"FORM"
-<b>ファイルの検索</b>
+<b>全文検索</b>
 <br><br>
 <form action="./search.rb" method="get">
 キーワード: <input type="text" name="keyword"><br>
