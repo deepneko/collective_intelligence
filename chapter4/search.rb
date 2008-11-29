@@ -4,7 +4,7 @@ require 'searcher.rb'
 require 'const.rb'
 
 $const = Const.new
-$searcher = Searcher.new($const.dbname)
+$searcher = Searcher.new($const.dbname, $const.nn)
 
 def search(keyword)
   $searcher.query(keyword)

@@ -1,10 +1,11 @@
 require 'rubygems'
 require 'sqlite3'
 require 'const'
-require 'searcher.rb'
+require 'searchnet.rb'
 
 class Searcher
-  def initialize(dbname)
+  def initialize(dbname, nn)
+    @mynet = Searchnet.new(nn)
     __init__(dbname)
   end
 
@@ -66,7 +67,8 @@ class Searcher
     
     weights = [[1.0, frequencyscore(rows)],
                [1.0, locationscore(rows)],
-               [1.0, pagerankscore(rows)]]
+               [1.0, pagerankscore(rows)],
+               [1.0, nnscore(rows, wordids)]]
 
     weights.each { |pair|
       weight = pair.shift
@@ -96,7 +98,8 @@ class Searcher
 
     html = ""
     scores_a.each { |s|
-      #print s[1].to_s + "<br>"
+      #print s[1].to_s + " "
+      #p geturlname(s[0])
       url = geturlname(s[0])
       html += "<a href='" + url + "'>" + url + "</a><br>"
     }
@@ -194,8 +197,23 @@ class Searcher
 
     return normalizedscores
   end
+
+  def nnscore(rows, wordids)
+    urlids = []
+    rows.each { |row|
+      urlids << row[0]
+    }
+    nnres = @mynet.getresult(wordids, urlids)
+
+    scores = Hash.new
+    for i in 0...urlids.size
+      scores[urlids[i]] = nnres[i]
+    end
+
+    return normalizescores(scores)
+  end
 end
 
-#const = Const.new
-#searcher = Searcher.new(const.dbname)
-#searcher.query(ARGV[0])
+const = Const.new
+searcher = Searcher.new(const.dbname, const.nn)
+searcher.query(ARGV[0])

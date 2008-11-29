@@ -222,22 +222,22 @@ class Searchnet
   end
 end
 
-mynet = Searchnet.new("nn.db")
-mynet.droptables()
-mynet.maketables()
-wWorld = 101
-wRiver = 102
-wBank = 103
-uWorldBank = 201
-uRiver = 202
-uEarth = 203
-mynet.generatehiddennode([wWorld,wBank], [uWorldBank,uRiver,uEarth])
-allurls = [uWorldBank, uRiver, uEarth]
-for i in 0...30
-  mynet.trainquery([wWorld,wBank], allurls, uWorldBank)
-  mynet.trainquery([wRiver,wBank], allurls, uRiver)
-  mynet.trainquery([wWorld], allurls, uEarth)
-end
-p mynet.getresult([wWorld,wBank], allurls)
-p mynet.getresult([wRiver,wBank], allurls)
-p mynet.getresult([wBank], allurls)
+#mynet = Searchnet.new("nn.db")
+#mynet.droptables()
+#mynet.maketables()
+#wWorld = 101
+#wRiver = 102
+#wBank = 103
+#uWorldBank = 201
+#uRiver = 202
+#uEarth = 203
+#mynet.generatehiddennode([wWorld,wBank], [uWorldBank,uRiver,uEarth])
+#allurls = [uWorldBank, uRiver, uEarth]
+#for i in 0...30
+#  mynet.trainquery([wWorld,wBank], allurls, uWorldBank)
+#  mynet.trainquery([wRiver,wBank], allurls, uRiver)
+#  mynet.trainquery([wWorld], allurls, uEarth)
+#end
+#p mynet.getresult([wWorld,wBank], allurls)
+#p mynet.getresult([wRiver,wBank], allurls)
+#p mynet.getresult([wBank], allurls)
