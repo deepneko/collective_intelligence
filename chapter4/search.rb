@@ -23,6 +23,8 @@ HEAD
 
 $form = <<"FORM"
 <b>全文検索</b>
+<br>
+<a href="http://kiwitobes.com/wiki/Main_Page.html">検索元</a>
 <br><br>
 <form action="./search.rb" method="get">
 キーワード: <input type="text" name="keyword"><br>
