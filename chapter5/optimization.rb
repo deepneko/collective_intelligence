@@ -272,10 +272,19 @@ optimization = Optimization.new
 #p optimization.getminutes("23:33")
 #s = [1,4,3,2,7,3,6,3,2,4,5,3]
 
-domain = Array.new(optimization.people.size*2){[0, 8]}
-costf = optimization.schedulecost
+#domain = Array.new(optimization.people.size*2){[0, 8]}
+#costf = optimization.schedulecost
 #s = optimization.randomoptimize(domain, &costf)
 #s = optimization.hillclimb(domain, &costf)
 #s = optimization.annealingoptimize(domain, &costf)
-s = optimization.geneticoptimize(domain, &costf)
-optimization.printschedule(s)
+#s = optimization.geneticoptimize(domain, &costf)
+#optimization.printschedule(s)
+
+require "visualizer.rb"
+v = Visualizer.new
+crosscount = v.crosscount
+#sol = optimization.randomoptimize(v.domain, &crosscount)
+#sol = optimization.annealingoptimize(v.domain, step=50, cool=0.99, &crosscount)
+sol = optimization.geneticoptimize(v.domain, &crosscount)
+v.drawnetwork(sol)
+
